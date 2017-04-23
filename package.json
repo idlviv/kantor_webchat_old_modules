@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "ejs": "*",
+    "ejs-locals": "^1.0.2",
     "express": "3.3.8",
+    "mongodb": "^2.2.26",
+    "mongoose": "^4.9.5",
     "nconf": "^0.8.4",
     "winston": "^2.3.1"
   }

@@ -5,6 +5,8 @@ var config = require('config');
 var log = require('libs/log')(module);
 
 var app = express();
+// ф-ли з розширенням ejs обробляти движком ejs-locals
+app.engine('ejs', require('ejs-locals'));
 
 app.set('views', path.join(__dirname, 'templates'));
 app.set('view engine', 'ejs');
@@ -25,8 +27,7 @@ app.use(app.router);
 
 app.get('/', function(req, res, next) {
   res.render('index', {
-    body: '<b>Hello</b>',
-    title: '<b>Title</b>',
+    bodyApp: '<b>Hello</b>',
   });
 });
 
