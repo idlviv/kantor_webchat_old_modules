@@ -8,8 +8,30 @@ mongoose.connection.on('open', function() {
     if (err) {
       throw err;
     } else {
-      console.log('ok');
-      mongoose.disconnect();
+      async.parallel([
+        function(callback) {
+          var vasya = new User({username: 'Vasya', password: 'v'});
+          vasya.save(function(err) {
+            callback(err, vasya);
+          });
+        },
+        function(callback) {
+          var petya = new User({username: 'Petya', password: 'p'});
+          petya.save(function(err) {
+            callback(err, petya);
+          });
+        },
+        function(callback) {
+          var admin = new User({username: 'Admin', password: 'a'});
+          admin.save(function(err) {
+            callback(err, admin);
+          });
+        }
+      ], function(err, results) {
+        console.log(arguments);
+        mongoose.disconnect();
+      });
+
     }
   });
 });
