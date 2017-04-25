@@ -31,6 +31,17 @@ app.get('/', function(req, res, next) {
   });
 });
 
+var User = require('models/user').User;
+app.get('/users', function(req, res, next) {
+  User.find({}, function(err, users) {
+    if (err) {
+      return next(err);
+    } else {
+      res.json(users);
+    }
+  })
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // якщо десь помилка або throw то керування зразу сюда
