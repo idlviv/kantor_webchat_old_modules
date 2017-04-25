@@ -3,6 +3,7 @@ var http = require('http');
 var path = require('path');
 var config = require('config');
 var log = require('libs/log')(module);
+var HttpError = require('error').HttpError;
 
 var app = express();
 // ф-ли з розширенням ejs обробляти движком ejs-locals
@@ -23,24 +24,11 @@ if (app.get('env') === 'development') {
 //парсить cookie, дані в req.cookies
 app.use(express.cookieParser('secret here'));
 
+app.use(require('middleware/sendHttpError'));
+
 app.use(app.router);
 
-app.get('/', function(req, res, next) {
-  res.render('index', {
-    bodyApp: '<b>Hello</b>',
-  });
-});
-
-var User = require('models/user').User;
-app.get('/users', function(req, res, next) {
-  User.find({}, function(err, users) {
-    if (err) {
-      return next(err);
-    } else {
-      res.json(users);
-    }
-  })
-});
+require('routes')(app);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -51,11 +39,19 @@ app.use(function(err, req, res, next) {
   // при development видає стек помилки
   // для цього є вбудований app.use(express.errorHandler()
   // при production те що має побачити користувач
-  if (app.get('env') === 'development') {
-    var errorHandler = express.errorHandler();
-    errorHandler(err, req, res, next);
+  if (typeof err === 'number') {
+    err = new HttpError(err);
+  }
+  if (err instanceof HttpError) {
+    res.sendHttpError(err);
   } else {
-    res.send(500, 'error');
+    if (app.get('env') === 'development') {
+      express.errorHandler()(err, req, res, next);
+    } else {
+      log.error(err);
+      err = new HttpError(500);
+      res.sendHttpError(err);
+    }
   }
 });
 

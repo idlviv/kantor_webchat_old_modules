@@ -1,8 +1,34 @@
+var User = require('models/user').User;
+var HttpError = require('error'). HttpError;
 
-/*
- * GET home page.
- */
+module.exports = function(app) {
 
-exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
+  app.get('/', function(req, res, next) {
+    res.render('index', {
+      bodyApp: '<b>Hello</b>',
+    });
+  });
+
+  app.get('/users', function(req, res, next) {
+    User.find({}, function(err, users) {
+      if (err) {
+        return next(err);
+      } else {
+        res.json(users);
+      }
+    });
+  });
+
+  app.get('/user/:id', function(req, res, next) {
+    User.findById(req.params.id, function(err, user) {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        next(new HttpError(404,'User not found'));
+      }
+      res.json(user);
+
+    });
+  });
 };
