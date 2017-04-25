@@ -39,7 +39,8 @@ app.use(function(err, req, res, next) {
   // при development видає стек помилки
   // для цього є вбудований app.use(express.errorHandler()
   // при production те що має побачити користувач
-  if (typeof err === 'number') {
+  console.log(err);
+  if (typeof err == 'number') {
     err = new HttpError(err);
   }
   if (err instanceof HttpError) {

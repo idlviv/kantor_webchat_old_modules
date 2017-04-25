@@ -1,5 +1,6 @@
 var User = require('models/user').User;
-var HttpError = require('error'). HttpError;
+var HttpError = require('error').HttpError;
+var ObjectID = require('mongodb').ObjectID;
 
 module.exports = function(app) {
 
@@ -20,12 +21,18 @@ module.exports = function(app) {
   });
 
   app.get('/user/:id', function(req, res, next) {
-    User.findById(req.params.id, function(err, user) {
+    try {
+      var id = new ObjectID(req.params.id);
+    } catch (e) {
+      return next(404);
+    }
+
+    User.findById(id, function(err, user) {
       if (err) {
         return next(err);
       }
       if (!user) {
-        next(new HttpError(404,'User not found'));
+        next(new HttpError(404, 'user not found'));
       }
       res.json(user);
 
