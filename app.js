@@ -3,7 +3,9 @@ var http = require('http');
 var path = require('path');
 var config = require('config');
 var log = require('libs/log')(module);
+var mongoose = require('libs/mongoose');
 var HttpError = require('error').HttpError;
+var bodyParser = require('body-parser')
 
 var app = express();
 // ф-ли з розширенням ejs обробляти движком ejs-locals
@@ -19,10 +21,32 @@ if (app.get('env') === 'development') {
 } else {
   app.use(express.logger('default'));
 }
+
 //читає форми прислані POST, JSON дані (розбирає тіло запроса), дані доступні в req.body..
-// app.use(express.bodyParser);
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+app.use(bodyParser.json());
+
 //парсить cookie, дані в req.cookies
 app.use(express.cookieParser('secret here'));
+
+var MongoStore = require('connect-mongo')(express);
+
+app.use(express.session({
+  secret: config.get('session:secret'),
+  key: config.get('session:key'),
+  cookie: config.get('session:cookie'),
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection
+  })
+}));
+
+// app.use(function(req, res, next) {
+//   req.session.numberOfVisits = req.session.numberOfVisits + 1 || 1;
+//   res.send("Visits: " + req.session.numberOfVisits);
+// });
 
 app.use(require('middleware/sendHttpError'));
 
