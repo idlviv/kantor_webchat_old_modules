@@ -49,6 +49,7 @@ app.use(express.session({
 // });
 
 app.use(require('middleware/sendHttpError'));
+app.use(require('middleware/loadUser'));
 
 app.use(app.router);
 
